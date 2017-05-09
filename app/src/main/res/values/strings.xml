@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">WebServicesConsumer</string>
+    <string name="use_rest">Github users using REST</string>
+    <string name="use_soap">NC states using SOAP</string>
+    <string name="choose_service">Please select a WebService:</string>
+    <string name="previous">previous</string>
+    <string name="next">next</string>
+    <string name="dummy_username">Username</string>
+    <string name="menu_refresh">Refresh</string>
+</resources>

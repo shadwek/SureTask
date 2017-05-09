@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context="sa.com.sure.task.webservicesconsumer.activity.MainActivity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tv_select_webservice"
+        android:textSize="24sp"
+        android:text="@string/choose_service"
+        style="@style/TextAppearance.AppCompat.Title"/>
+
+    <Button
+        android:id="@+id/b_rest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_select_webservice"
+        android:layout_marginTop="16dp"
+        android:onClick="lunchGithubUsersActivity"
+        android:text="@string/use_rest"
+        android:textSize="22sp" />
+
+    <Button
+        android:id="@+id/b_soap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/b_rest"
+        android:onClick="lunchNcStatesActivity"
+        android:text="@string/use_soap"
+        android:textSize="22sp" />
+
+</RelativeLayout>
