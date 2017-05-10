@@ -28,15 +28,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void lunchNcStatesActivity(View view){
-        lunchActivity(this, NcStatesActivity.class);
+        lunchActivity(this, UsStatesActivity.class);
     }
 
 //    public List<GithubUser> getUsers(int page, int usersPerPage){
 //        Retrofit retrofit = new Retrofit.Builder()
-//                .baseUrl(GetGithubUsersTask.GITHUB_API_URL)
+//                .baseUrl(GetUsStatesTask.GITHUB_API_URL)
 //                .addConverterFactory(GsonConverterFactory.create())
 //                .build();
-//        GetGithubUsersTask service = retrofit.create(GetGithubUsersTask.class);
+//        GetUsStatesTask service = retrofit.create(GetUsStatesTask.class);
 //        Call<List<GithubUser>> usersCall = service.githubUsers(page, usersPerPage);
 //        Callback<List<GithubUser>> callback = new Callback<List<GithubUser>>() {
 //            List<GithubUser> githubUsers = new ArrayList<>();

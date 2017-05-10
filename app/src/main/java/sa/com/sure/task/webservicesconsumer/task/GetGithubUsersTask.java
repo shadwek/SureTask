@@ -18,13 +18,13 @@
 //import retrofit2.http.GET;
 //import retrofit2.http.Query;
 //import sa.com.sure.task.Global;
-//import sa.com.sure.task.webservicesconsumer.adapter.RecyclerListerAdapter;
+//import sa.com.sure.task.webservicesconsumer.Recycler.adapter.RecyclerListerAdapter;
 //import sa.com.sure.task.webservicesconsumer.model.GithubUser;
 //
 ///**
 // * Created by HussainHajjar on 5/8/2017.
 // */
-//public class GetGithubUsersTask extends AsyncTask<Integer, Double, List<GithubUser>>{
+//public class GetUsStatesTask extends AsyncTask<Integer, Double, List<GithubUser>>{
 //
 //    public static void getGitHubUsers(int page, int usersPerPage) throws IOException {
 //        GithubConsumerHttp service = getConsumer(GithubConsumerHttp.GITHUB_API_URL, GithubConsumerHttp.class);
@@ -81,7 +81,7 @@
 //        Call<List<GithubUser>> githubUsers(@Query("page") int page, @Query("per_page") int perPage);
 //    }
 //}
-////public interface GetGithubUsersTask {
+////public interface GetUsStatesTask {
 ////    String GITHUB_API_URL = "https://api.github.com/";
 ////    @GET("users")
 ////    Call<List<GithubUser>> githubUsers(@Query("page") int page, @Query("per_page") int perPage);

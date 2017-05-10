@@ -1,5 +1,7 @@
 package sa.com.sure.task.webservicesconsumer.model;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by HussainHajjar on 5/8/2017.
  */
@@ -9,6 +11,8 @@ public class GithubUser {
     private String login;
     private String avatar_url;
     private String html_url;
+    private Bitmap avatar;
+    private boolean isStarted;
 
     public GithubUser(){}
 
@@ -35,4 +39,16 @@ public class GithubUser {
     public void setHtml_url(String html_url) {
         this.html_url = html_url;
     }
+
+    public Bitmap getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(Bitmap avatar) {
+        this.avatar = avatar;
+    }
+
+    public void setStarted(boolean started){ this.isStarted = started; }
+
+    public boolean getStarted(){ return this.isStarted; }
 }

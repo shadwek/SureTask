@@ -4,29 +4,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="sa.com.sure.task.webservicesconsumer.activity.GithubUsersActivity"
+    tools:mContext="sa.com.sure.task.webservicesconsumer.activity.GithubUsersActivity"
     android:weightSum="1">
 
     <TextView
+        android:id="@+id/tv_error_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/tv_error_message"
         android:textSize="24sp"
         android:layout_marginTop="8dp"
         android:layout_gravity="start"
         tools:text="Error message"/>
 
     <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/rv_list"
-        android:layout_marginBottom="-42dp"
+        android:layout_marginBottom="42dp"
         android:layout_marginTop="8dp"/>
 
     <ProgressBar
+        android:id="@+id/pb_load_indicator"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:id="@+id/pb_load_indicator"
         android:layout_gravity="center"
         android:visibility="invisible"/>
 

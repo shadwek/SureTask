@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    tools:context="sa.com.sure.task.webservicesconsumer.activity.MainActivity">
+    tools:mContext="sa.com.sure.task.webservicesconsumer.activity.MainActivity">
 
     <TextView
+        android:id="@+id/tv_select_webservice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/tv_select_webservice"
         android:textSize="24sp"
         android:text="@string/choose_service"
         style="@style/TextAppearance.AppCompat.Title"/>

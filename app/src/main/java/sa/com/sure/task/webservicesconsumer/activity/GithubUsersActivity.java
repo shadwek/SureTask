@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -27,8 +27,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import sa.com.sure.task.webservicesconsumer.R;
-import sa.com.sure.task.webservicesconsumer.adapter.RecyclerListerAdapter;
+import sa.com.sure.task.webservicesconsumer.recycler.adapter.RecyclerListerAdapter;
 import sa.com.sure.task.webservicesconsumer.model.GithubUser;
+import sa.com.sure.task.webservicesconsumer.task.GetGithubUserAvatarTask;
 
 public class GithubUsersActivity extends AppCompatActivity implements RecyclerListerAdapter.ListItemHandler{
 
@@ -78,7 +79,6 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
                 }
                 else {
                     int pageNum = Integer.valueOf(tab.getText().toString()) - 1;
-                    Log.d("TAB", "selected tab: " + pageNum + ", position: " + tab.getPosition());
                     loadGithubUsers(pageNum * USERS_PER_PAGE);
                 }
             }
@@ -104,7 +104,6 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
 
     @Override
     public void onListItemClick(String githubUserUrl) {
-        Log.d("CLICK", "Clicked onListItemClick");
         Uri uri = Uri.parse(githubUserUrl);
         Intent webBrowserItent = new Intent(Intent.ACTION_VIEW, uri);
         if(webBrowserItent.resolveActivity(getPackageManager()) != null){
@@ -150,11 +149,17 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
 
         int selectedItemId = item.getItemId();
         if(selectedItemId == R.id.action_refresh){
-            mRecyclerAdapter.setGithubUsers(null);
-            loadGithubUsers(1); // TODO currentPageView
+            int currentTabPage = getCurrentTabPage();
+            mRecyclerAdapter.setGithubUsers(currentTabPage, null);
+            loadGithubUsers(currentTabPage);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public int getCurrentTabPage(){
+        TabLayout.Tab currentTab = mPageTabLayout.getTabAt(mPageTabLayout.getSelectedTabPosition());
+        return Integer.parseInt(currentTab.getText().toString());
     }
 
     public class GetGithubUsersTask extends AsyncTask<Integer, Double, List<GithubUser>> {
@@ -163,6 +168,10 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
         protected void onPreExecute() {
             super.onPreExecute();
             mLoadIndicatorProgressBar.setVisibility(View.VISIBLE);
+            if (mRecyclerAdapter.containsUsers(getCurrentTabPage())){
+                mRecyclerAdapter.notifyDataSetChanged();
+                this.cancel(true);
+            }
         }
 
         @Override
@@ -176,13 +185,38 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             GithubConsumerHttp consumer = retrofit.create(GithubConsumerHttp.class);
-            Call<List<GithubUser>> usersCall = consumer.githubUsers(integers[0]);
+            Call<List<GithubUser>> usersCall = consumer.githubUsers(integers[0], integers[1]);
+            final List<GithubUser> users = getUsersFromLocalJson();//TODO delete when limit is refreshed
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i = 0; i <12; i++) {
+                        try {
+                            users.get(i).setAvatar(new GetGithubUserAvatarTask(null, users.get(i)).execute(users.get(i).getAvatar_url()).get());
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+//                users.get(i).downloadAvatar(null,false);
+//                users.get(i+2).setAvatar(new GetGithubUserAvatarTask().execute(users.get(i+2).getAvatar_url()).get());
+                    }
+                    //            users.get(12).downloadAvatar(null,true);
+                }
+            });
+//            try {
+//                this.wait();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+            return users;
+
 //            try {// TODO uncoment when getUsersFromLocalJson is commented
 //                Response<List<GithubUser>> response = usersCall.execute();
 //                if(response.isSuccessful()){
 //                    return response.body();
 //                } else {
-                    return getUsersFromLocalJson();//TODO delete when limit is refreshed
+//                    return getUsersFromLocalJson();//TODO delete when limit is refreshed
 //                    showErrorMessageView("Could not get github users. " +
 //                            "\nResponse Code: " + response.code() + ", " +
 //                            "\nResponse Message: " + response.message());
@@ -198,13 +232,32 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
             super.onPostExecute(githubUsers);
             mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
             if(githubUsers != null){
+                for(int i = 12; i < 50; i++) {
+                    try {
+                        new GetGithubUserAvatarTask(null, githubUsers.get(i)).execute(githubUsers.get(i).getAvatar_url());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 showGithubUsersListView();
-                mRecyclerAdapter.setGithubUsers(githubUsers);
+                mRecyclerAdapter.setGithubUsers(getCurrentTabPage(), githubUsers);
             }
             else {
                 showErrorMessageView("Get Github users task executed but no users found!");
             }
         }
+
+        @Override
+        protected void onProgressUpdate(Double... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onCancelled() {
+            mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
+                showGithubUsersListView();
+                mRecyclerAdapter.setGithubUsers(getCurrentTabPage(), null);
+            }
     }
 
     private List<GithubUser> getUsersFromLocalJson() { // TODO ToDelete
@@ -220,6 +273,6 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
         // pagination in:  https://api.github.com/users?page=1&per_page=50   NOT WORKING
 //        Call<List<GithubUser>> githubUsers(@Query("page") int page, @Query("per_page") int perPage);
         // since={userId} works with 50 increments to play as pages
-        Call<List<GithubUser>> githubUsers(@Query("since") int userId);
+        Call<List<GithubUser>> githubUsers(@Query("since") int userId, @Query("per_page") int perPage);
     }
 }

@@ -5,9 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <ImageView
+        android:id="@+id/iv_user_image"
         android:layout_width="42dp"
         android:layout_height="42dp"
-        android:id="@+id/iv_user_image"
+        android:contentDescription="@string/cd_github_user_image"
         android:layout_margin="8dp"
         tools:src="@mipmap/ic_launcher"/>
 
@@ -23,12 +24,12 @@
         tools:text="@string/dummy_username"/>
 
     <View
+        android:id="@+id/v_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#dadada"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="58dp"
-        android:id="@+id/v_divider" />
+        android:layout_marginTop="58dp" />
 
 </FrameLayout>

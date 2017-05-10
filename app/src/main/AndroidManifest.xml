@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.GithubUsersActivity" />
-        <activity android:name=".activity.NcStatesActivity"></activity>
+        <activity android:name=".activity.UsStatesActivity"></activity>
     </application>
 
 </manifest>

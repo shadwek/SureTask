@@ -4,6 +4,7 @@ package sa.com.sure.task;
  */
 
 public class Global {
+    // TODO add all log TAGs here
     public static String getMethodName(){
         String methodName = new Throwable().getStackTrace()[1].getMethodName();
         System.out.println(methodName);
