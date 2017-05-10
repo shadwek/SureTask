@@ -1,9 +1,32 @@
 <resources>
+
+    <!-- - - - - - - - - - - - - - - - - -->
+    <!--           GENERAL USE           -->
+    <!-- - - - - - - - - - - - - - - - - -->
     <string name="app_name">WebServicesConsumer</string>
+    <string name="menu_refresh">Refresh</string>
+
+    <!-- - - - - - - - - - - - - - - - - -->
+    <!--     Used within MainActivity    -->
+    <!-- - - - - - - - - - - - - - - - - -->
+    <string name="choose_service">Please select a WebService:</string>
     <string name="use_rest">Github users using REST</string>
     <string name="use_soap">NC state Cities using SOAP</string>
-    <string name="choose_service">Please select a WebService:</string>
+
+
+    <!-- - - - - - - - - - - - - - - - - -->
+    <!-- Used within GithubUsersActivity -->
+    <!-- - - - - - - - - - - - - - - - - -->
     <string name="cd_github_user_image">Github user avatar</string>
     <string name="dummy_username">Username</string>
-    <string name="menu_refresh">Refresh</string>
+
+    <!-- - - - - - - - - - - - - - - - - -->
+    <!--   Used within UsStateActivity   -->
+    <!-- - - - - - - - - - - - - - - - - -->
+    <string name="city">City</string>
+    <string name="state">State</string>
+    <string name="zip_code">Zip Code</string>
+    <string name="time_zone">Time Zone</string>
+    <string name="area_code">Area Code</string>
+
 </resources>

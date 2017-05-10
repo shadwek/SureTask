@@ -18,11 +18,15 @@ import sa.com.sure.task.webservicesconsumer.recycler.viewholder.UsStateViewHolde
 
 public class UsStateAdapter extends RecyclerView.Adapter<UsStateViewHolder> {
 
-    private List<UsState> mStates;
+    private List<UsState.State> mStates;
 
     public UsStateAdapter(){ mStates = new ArrayList<>(); }
 
-    public void setUsStates(List<UsState> usStates){ this.mStates = usStates; }
+    public void setUsStates(UsState usStates){
+        if(usStates == null) usStates = new UsState();
+        this.mStates = usStates.getStates();
+        notifyDataSetChanged();
+    }
 
     @Override
     public UsStateViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -34,11 +38,11 @@ public class UsStateAdapter extends RecyclerView.Adapter<UsStateViewHolder> {
     @Override
     public void onBindViewHolder(UsStateViewHolder holder, int position) {
         if(mStates == null || mStates.size() == 0) return;
-        UsState usState = mStates.get(position);
+        UsState.State usState = mStates.get(position);
         holder.setCity(usState.getCity());
         holder.setState(usState.getState());
         holder.setZipCode(usState.getZipCode());
-        holder.setTimeZone(usState.getZipCode());
+        holder.setTimeZone(usState.getTimeZone());
         holder.setAreaCode(usState.getAreaCode());
     }
 

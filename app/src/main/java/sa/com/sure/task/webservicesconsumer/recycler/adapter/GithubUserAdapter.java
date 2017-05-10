@@ -50,7 +50,7 @@ public class GithubUserAdapter extends RecyclerView.Adapter<GithubUserViewHolder
                 mPageUsers.get(mCurrentPage).get(position) == null) return;
         GithubUser githubUser = mPageUsers.get(mCurrentPage).get(position);
         holder.setUsername(githubUser.getLogin());
-        holder.setUserAvatar(); // TODO DOWNLOAD user avatar
+        holder.setUserAvatar(githubUser.getAvatar());
     }
 
     @Override

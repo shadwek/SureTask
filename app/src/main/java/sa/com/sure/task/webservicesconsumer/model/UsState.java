@@ -1,62 +1,78 @@
 package sa.com.sure.task.webservicesconsumer.model;
 
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.util.List;
 
 /**
  * Created by HussainHajjar on 5/10/2017.
  */
-@Root(name = "Table")
+@Root(strict = false)
 public class UsState {
 
-    @Element(name = "CITY")
-    private String city;
-    @Element(name = "STATE")
-    private String state;
-    @Element(name = "ZIP")
-    private String zipCode;
-    @Element(name = "AREA_CODE")
-    private String areaCode;
-    @Element(name = "TIME_ZONE")
-    private String timeZone;
+    public UsState(){}
 
-    public String getCity() {
-        return city;
-    }
+    @ElementList(entry = "Table", inline=true)
+    private List<State> states;
 
-    public void setCity(String city) {
-        this.city = city;
-    }
+    public List<State> getStates(){ return this.states; }
 
-    public String getState() {
-        return state;
-    }
+    @Root
+    public static class State{
 
-    public void setState(String state) {
-        this.state = state;
-    }
+        public State(){}
 
-    public String getZipCode() {
-        return zipCode;
-    }
+        @Element(name = "CITY")
+        private String city;
+        @Element(name = "STATE")
+        private String state;
+        @Element(name = "ZIP")
+        private String zipCode;
+        @Element(name = "AREA_CODE")
+        private String areaCode;
+        @Element(name = "TIME_ZONE")
+        private String timeZone;
 
-    public void setZipCode(String zipCode) {
-        this.zipCode = zipCode;
-    }
+        public String getCity() {
+            return city;
+        }
 
-    public String getAreaCode() {
-        return areaCode;
-    }
+        public void setCity(String city) {
+            this.city = city;
+        }
 
-    public void setAreaCode(String areaCode) {
-        this.areaCode = areaCode;
-    }
+        public String getState() {
+            return state;
+        }
 
-    public String getTimeZone() {
-        return timeZone;
-    }
+        public void setState(String state) {
+            this.state = state;
+        }
 
-    public void setTimeZone(String timeZone) {
-        this.timeZone = timeZone;
+        public String getZipCode() {
+            return zipCode;
+        }
+
+        public void setZipCode(String zipCode) {
+            this.zipCode = zipCode;
+        }
+
+        public String getAreaCode() {
+            return areaCode;
+        }
+
+        public void setAreaCode(String areaCode) {
+            this.areaCode = areaCode;
+        }
+
+        public String getTimeZone() {
+            return timeZone;
+        }
+
+        public void setTimeZone(String timeZone) {
+            this.timeZone = timeZone;
+        }
     }
 }

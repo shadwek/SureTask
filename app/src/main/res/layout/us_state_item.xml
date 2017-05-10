@@ -12,7 +12,7 @@
         android:id="@+id/tv_city"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="26sp"
+        android:textSize="22sp"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
@@ -26,15 +26,20 @@
         android:textSize="20sp"
         android:layout_gravity="top|center"
         android:layout_marginTop="8dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginStart="40dp"
         tools:text="AC"/>
 
     <TextView
         android:id="@+id/tv_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
+        android:textSize="20sp"
         android:layout_gravity="bottom|center"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginStart="40dp"
         tools:text="state"/>
 
     <TextView
@@ -53,6 +58,7 @@
         android:textSize="20sp"
         android:layout_gravity="bottom|end"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         tools:text="TZ"/>
 
     <View
