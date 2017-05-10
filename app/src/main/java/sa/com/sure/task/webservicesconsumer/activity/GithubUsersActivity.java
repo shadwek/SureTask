@@ -27,15 +27,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import sa.com.sure.task.webservicesconsumer.R;
-import sa.com.sure.task.webservicesconsumer.recycler.adapter.RecyclerListerAdapter;
+import sa.com.sure.task.webservicesconsumer.recycler.adapter.GithubUserAdapter;
 import sa.com.sure.task.webservicesconsumer.model.GithubUser;
 import sa.com.sure.task.webservicesconsumer.task.GetGithubUserAvatarTask;
 
-public class GithubUsersActivity extends AppCompatActivity implements RecyclerListerAdapter.ListItemHandler{
+public class GithubUsersActivity extends AppCompatActivity implements GithubUserAdapter.GithubUserItemHandler {
 
     private final int USERS_PER_PAGE = 50;
 
-    private RecyclerListerAdapter mRecyclerAdapter;
+    private GithubUserAdapter mRecyclerAdapter;
     private RecyclerView mListRecyclerView;
     private TextView mErrorMessageTextView;
     private ProgressBar mLoadIndicatorProgressBar;
@@ -94,7 +94,7 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
             }
         });
 
-        mRecyclerAdapter = new RecyclerListerAdapter(this);
+        mRecyclerAdapter = new GithubUserAdapter(this);
         mListRecyclerView.setAdapter(mRecyclerAdapter);
         mListRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
@@ -103,7 +103,8 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
     }
 
     @Override
-    public void onListItemClick(String githubUserUrl) {
+    public void onUserItemClick(int githubUserPosition) {
+        String githubUserUrl = mRecyclerAdapter.getGithubUser(getCurrentTabPage(), githubUserPosition).getHtml_url();
         Uri uri = Uri.parse(githubUserUrl);
         Intent webBrowserItent = new Intent(Intent.ACTION_VIEW, uri);
         if(webBrowserItent.resolveActivity(getPackageManager()) != null){
@@ -168,7 +169,7 @@ public class GithubUsersActivity extends AppCompatActivity implements RecyclerLi
         protected void onPreExecute() {
             super.onPreExecute();
             mLoadIndicatorProgressBar.setVisibility(View.VISIBLE);
-            if (mRecyclerAdapter.containsUsers(getCurrentTabPage())){
+            if (mRecyclerAdapter.hasUsers(getCurrentTabPage())){
                 mRecyclerAdapter.notifyDataSetChanged();
                 this.cancel(true);
             }

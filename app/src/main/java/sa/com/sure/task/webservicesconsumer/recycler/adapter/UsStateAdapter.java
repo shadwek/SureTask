@@ -22,10 +22,7 @@ public class UsStateAdapter extends RecyclerView.Adapter<UsStateViewHolder> {
 
     public UsStateAdapter(){ mStates = new ArrayList<>(); }
 
-    public void setUsStates(List<UsState> usStates){
-        if(usStates == null) usStates = new ArrayList<>();
-        this.mStates = usStates;
-    }
+    public void setUsStates(List<UsState> usStates){ this.mStates = usStates; }
 
     @Override
     public UsStateViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
