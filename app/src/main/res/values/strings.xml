@@ -25,8 +25,8 @@
     <!-- - - - - - - - - - - - - - - - - -->
     <string name="city">City</string>
     <string name="state">State</string>
-    <string name="zip_code">Zip Code</string>
-    <string name="time_zone">Time Zone</string>
-    <string name="area_code">Area Code</string>
+    <string name="zip_code">Zip\nCode</string>
+    <string name="time_zone">Time\nZone</string>
+    <string name="area_code">Area\nCode</string>
 
 </resources>
