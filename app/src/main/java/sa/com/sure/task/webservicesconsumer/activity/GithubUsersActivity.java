@@ -18,10 +18,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
@@ -29,17 +30,26 @@ import retrofit2.http.Query;
 import sa.com.sure.task.webservicesconsumer.R;
 import sa.com.sure.task.webservicesconsumer.recycler.adapter.GithubUserAdapter;
 import sa.com.sure.task.webservicesconsumer.model.GithubUser;
-import sa.com.sure.task.webservicesconsumer.task.GetGithubUserAvatarTask;
 
 public class GithubUsersActivity extends AppCompatActivity implements GithubUserAdapter.GithubUserItemHandler {
 
+    // TODO save users in database
+    // TODO don't show recycler until load is completed
+    // TODO elegent the code
+    // TODO do them remove all TODOs
+    // TODO make sure all updates in code done for both activities
+
+    // change if you want more users per page
     private final int USERS_PER_PAGE = 50;
+    private int LAST_FETCHED_USER_ID = -1;
+    private boolean IS_MENU_REFRESH_CLICKED;
 
     private GithubUserAdapter mRecyclerAdapter;
     private RecyclerView mListRecyclerView;
     private TextView mErrorMessageTextView;
     private ProgressBar mLoadIndicatorProgressBar;
     private TabLayout mPageTabLayout;
+    private Toast mToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,7 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         mErrorMessageTextView = (TextView) findViewById(R.id.tv_error_message);
         mLoadIndicatorProgressBar = (ProgressBar) findViewById(R.id.pb_load_indicator);
         mPageTabLayout = (TabLayout) findViewById(R.id.tl_pages_tab);
+
         mPageTabLayout.getTabAt(0).setText("1");
         mPageTabLayout.getTabAt(1).setText("2");
         mPageTabLayout.getTabAt(2).setText("3");
@@ -77,10 +88,7 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
                     mPageTabLayout.getTabAt(4).setText("NEXT");
                     mPageTabLayout.getTabAt(3).select();
                 }
-                else {
-                    int pageNum = Integer.valueOf(tab.getText().toString()) - 1;
-                    loadGithubUsers(pageNum * USERS_PER_PAGE);
-                }
+                else loadGithubUsers();
             }
 
             @Override
@@ -99,7 +107,7 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         mListRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         mListRecyclerView.setLayoutManager(layoutManager);
-        loadGithubUsers(0);
+        loadGithubUsers();
     }
 
     @Override
@@ -113,30 +121,29 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         else Toast.makeText(this, "Could not found web browser app to open github user!", Toast.LENGTH_LONG).show();
     }
 
-    public void loadGithubUsers(int page){
-        showGithubUsersListView();
-        new GetGithubUsersTask().execute(page, USERS_PER_PAGE);
+    private void loadGithubUsers() {
+        new GetGithubUsersTask().execute(LAST_FETCHED_USER_ID + 1, USERS_PER_PAGE);
+        mListRecyclerView.getLayoutManager().scrollToPosition(0);
     }
 
-    public void showErrorMessageView(final String errorMessage){
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mErrorMessageTextView.setVisibility(View.VISIBLE);
-                mErrorMessageTextView.setText(errorMessage);
-                mListRecyclerView.setVisibility(View.INVISIBLE);
-            }
-        });
+    private void showErrorMessageView(final String errorMessage){
+        mErrorMessageTextView.setVisibility(View.VISIBLE);
+        mErrorMessageTextView.setText(errorMessage);
+        mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
+        mListRecyclerView.setVisibility(View.INVISIBLE);
+        mPageTabLayout.setVisibility(View.INVISIBLE);
     }
 
-    public void showGithubUsersListView(){
-        this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mErrorMessageTextView.setVisibility(View.INVISIBLE);
-                mListRecyclerView.setVisibility(View.VISIBLE);
-            }
-        });
+    private void showGithubUsersListView(final String... toastMessage){
+        mErrorMessageTextView.setVisibility(View.INVISIBLE);
+        mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
+        mListRecyclerView.setVisibility(View.VISIBLE);
+        mPageTabLayout.setVisibility(View.VISIBLE);
+        if(toastMessage != null && toastMessage.length > 0){
+            if(mToast != null) mToast.cancel();
+            mToast = Toast.makeText(this, toastMessage[0], Toast.LENGTH_LONG);
+            mToast.show();
+        }
     }
 
     @Override
@@ -147,31 +154,38 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int selectedItemId = item.getItemId();
         if(selectedItemId == R.id.action_refresh){
-            int currentTabPage = getCurrentTabPage();
-            mRecyclerAdapter.setGithubUsers(currentTabPage, null);
-            loadGithubUsers(currentTabPage);
+            IS_MENU_REFRESH_CLICKED = true;
+            loadGithubUsers();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public int getCurrentTabPage(){
+    private int getCurrentTabPage(){
         TabLayout.Tab currentTab = mPageTabLayout.getTabAt(mPageTabLayout.getSelectedTabPosition());
         return Integer.parseInt(currentTab.getText().toString());
     }
 
-    public class GetGithubUsersTask extends AsyncTask<Integer, Double, List<GithubUser>> {
+    private class GetGithubUsersTask extends AsyncTask<Integer, Double, List<GithubUser>> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mLoadIndicatorProgressBar.setVisibility(View.VISIBLE);
-            if (mRecyclerAdapter.hasUsers(getCurrentTabPage())){
-                mRecyclerAdapter.notifyDataSetChanged();
+            int currentTabPage = getCurrentTabPage();
+            if(mRecyclerAdapter.hasUsers(currentTabPage) &&
+                    mRecyclerAdapter.getGithubUsers(currentTabPage).size() != 0) { // users already fetched
+                mRecyclerAdapter.setGithubUsers(currentTabPage, null);
+                if(IS_MENU_REFRESH_CLICKED){
+                    showGithubUsersListView("Users up to date!");
+                    IS_MENU_REFRESH_CLICKED = false;
+                }
                 this.cancel(true);
+            } else {
+                mLoadIndicatorProgressBar.setVisibility(View.VISIBLE);
+                mListRecyclerView.setVisibility(View.INVISIBLE);
+                mPageTabLayout.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -182,83 +196,36 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
                 return null;
             }
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(GithubConsumerHttp.GITHUB_API_URL)
+                    .baseUrl(GithubWebServiceInterface.GITHUB_API_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
-            GithubConsumerHttp consumer = retrofit.create(GithubConsumerHttp.class);
-            Call<List<GithubUser>> usersCall = consumer.githubUsers(integers[0], integers[1]);
-            final List<GithubUser> users = getUsersFromLocalJson();//TODO delete when limit is refreshed
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    for(int i = 0; i <12; i++) {
-                        try {
-                            users.get(i).setAvatar(new GetGithubUserAvatarTask(null, users.get(i)).execute(users.get(i).getAvatar_url()).get());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
-//                users.get(i).downloadAvatar(null,false);
-//                users.get(i+2).setAvatar(new GetGithubUserAvatarTask().execute(users.get(i+2).getAvatar_url()).get());
-                    }
-                    //            users.get(12).downloadAvatar(null,true);
+            GithubWebServiceInterface service = retrofit.create(GithubWebServiceInterface.class);
+            Call<List<GithubUser>> usersCall = service.getGithubUsers(integers[0], integers[1]);
+//            return getUsersFromLocalJson();//TODO delete when limit is refreshed
+            try {// TODO uncoment when getUsersFromLocalJson is commented
+                Response<List<GithubUser>> response = usersCall.execute();
+                if(response.code() == 200){
+                    return response.body();
+                } else {
+                    showErrorMessageView("Could not get github users. " +
+                            "\nResponse Code: " + response.code() + ", " +
+                            "\nResponse Message: " + response.message());
                 }
-            });
-//            try {
-//                this.wait();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-            return users;
-
-//            try {// TODO uncoment when getUsersFromLocalJson is commented
-//                Response<List<GithubUser>> response = usersCall.execute();
-//                if(response.isSuccessful()){
-//                    return response.body();
-//                } else {
-//                    return getUsersFromLocalJson();//TODO delete when limit is refreshed
-//                    showErrorMessageView("Could not get github users. " +
-//                            "\nResponse Code: " + response.code() + ", " +
-//                            "\nResponse Message: " + response.message());
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         @Override
         protected void onPostExecute(List<GithubUser> githubUsers) {
             super.onPostExecute(githubUsers);
-            mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
             if(githubUsers != null){
-                for(int i = 12; i < 50; i++) {
-                    try {
-                        new GetGithubUserAvatarTask(null, githubUsers.get(i)).execute(githubUsers.get(i).getAvatar_url());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
                 showGithubUsersListView();
                 mRecyclerAdapter.setGithubUsers(getCurrentTabPage(), githubUsers);
-            }
-            else {
-                showErrorMessageView("Get Github users task executed but no users found!");
+                LAST_FETCHED_USER_ID = githubUsers.get(githubUsers.size() - 1).getId();
             }
         }
-
-        @Override
-        protected void onProgressUpdate(Double... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onCancelled() {
-            mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
-                showGithubUsersListView();
-                mRecyclerAdapter.setGithubUsers(getCurrentTabPage(), null);
-            }
     }
 
     private List<GithubUser> getUsersFromLocalJson() { // TODO ToDelete
@@ -268,12 +235,13 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         return users;
     }
 
-    public interface GithubConsumerHttp {
+    private interface GithubWebServiceInterface {
         String GITHUB_API_URL = "https://api.github.com/";
         @GET("users")
-        // pagination in:  https://api.github.com/users?page=1&per_page=50   NOT WORKING
-//        Call<List<GithubUser>> githubUsers(@Query("page") int page, @Query("per_page") int perPage);
-        // since={userId} works with 50 increments to play as pages
-        Call<List<GithubUser>> githubUsers(@Query("since") int userId, @Query("per_page") int perPage);
+//        pagination in:  https://api.github.com/users?page=1&per_page=50   is NOT WORKING
+//        Call<List<GithubUser>> getGithubUsers(@Query("page") int page, @Query("per_page") int perPage);
+//        Solution is using since={userId} works with 50 increments to play as pages
+//        i.e https://api.github.com/users?since=0&per_page=50
+        Call<List<GithubUser>> getGithubUsers(@Query("since") int userId, @Query("per_page") int perPage);
     }
 }

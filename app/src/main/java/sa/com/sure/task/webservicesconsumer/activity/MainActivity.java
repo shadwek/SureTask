@@ -37,15 +37,15 @@ public class MainActivity extends AppCompatActivity {
 //                .addConverterFactory(GsonConverterFactory.create())
 //                .build();
 //        GetUsStatesTask service = retrofit.create(GetUsStatesTask.class);
-//        Call<List<GithubUser>> usersCall = service.githubUsers(page, usersPerPage);
+//        Call<List<GithubUser>> usersCall = service.getGithubUsers(page, usersPerPage);
 //        Callback<List<GithubUser>> callback = new Callback<List<GithubUser>>() {
-//            List<GithubUser> githubUsers = new ArrayList<>();
+//            List<GithubUser> getGithubUsers = new ArrayList<>();
 //            @Override
 //            public void onResponse(Call<List<GithubUser>> call, Response<List<GithubUser>> response) {
 //                if (response.code() == 200) {
-//                    githubUsers = response.body();
-//                    for(GithubUser user : githubUsers) Log.d("User", user.getLogin());
-//                    Toast.makeText(MainActivity.this, "Got users: " + githubUsers.size(), Toast.LENGTH_LONG).show();
+//                    getGithubUsers = response.body();
+//                    for(GithubUser user : getGithubUsers) Log.d("User", user.getLogin());
+//                    Toast.makeText(MainActivity.this, "Got users: " + getGithubUsers.size(), Toast.LENGTH_LONG).show();
 //                } else {
 //                    Toast.makeText(MainActivity.this, "Did not work: " + String.valueOf(response.code()), Toast.LENGTH_LONG).show();
 //                }
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 //                Log.d("Error", t.getMessage());
 //            }
 //            public List<GithubUser> getUsers(){
-//                return this.githubUsers;
+//                return this.getGithubUsers;
 //            }
 //        };
 //        usersCall.enqueue(callback);

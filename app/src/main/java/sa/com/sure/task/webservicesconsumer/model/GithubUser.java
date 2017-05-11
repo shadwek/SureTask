@@ -8,6 +8,10 @@ import android.graphics.Bitmap;
 
 public class GithubUser {
 
+    // query used to get small avatar images (80 * 80)
+    private final static String AVATAR_SIZE_QUERY = "&s=80";
+
+    private int id;
     private String login;
     private String avatar_url;
     private String html_url;
@@ -15,6 +19,10 @@ public class GithubUser {
     private boolean isStarted;
 
     public GithubUser(){}
+
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
 
     public String getLogin() {
         return login;
@@ -25,7 +33,7 @@ public class GithubUser {
     }
 
     public String getAvatar_url() {
-        return avatar_url;
+        return avatar_url + AVATAR_SIZE_QUERY;
     }
 
     public void setAvatar_url(String avatar_url) {

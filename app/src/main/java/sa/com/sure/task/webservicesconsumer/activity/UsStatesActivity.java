@@ -25,6 +25,8 @@ import sa.com.sure.task.webservicesconsumer.recycler.adapter.UsStateAdapter;
 
 public class UsStatesActivity extends AppCompatActivity {
 
+    // TODO save states in database
+
     // To change if you want another state
     private final String SELECTED_STATE = "NC";
 
@@ -50,12 +52,12 @@ public class UsStatesActivity extends AppCompatActivity {
         loadUsStates(SELECTED_STATE);
     }
 
-    public void loadUsStates(String state) {
+    private void loadUsStates(String state) {
         showUsStatesListView();
         new GetUsStatesTask().execute(state);
     }
 
-    public void showErrorMessageView(final String errorMessage) {
+    private void showErrorMessageView(final String errorMessage) {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -66,7 +68,7 @@ public class UsStatesActivity extends AppCompatActivity {
         });
     }
 
-    public void showUsStatesListView() {
+    private void showUsStatesListView() {
         this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -84,7 +86,6 @@ public class UsStatesActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         int selectedItemId = item.getItemId();
         if (selectedItemId == R.id.action_refresh) {
             mRecyclerAdapter.setUsStates(null);
@@ -94,7 +95,7 @@ public class UsStatesActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public class GetUsStatesTask extends AsyncTask<String, Void, UsState> {
+    private class GetUsStatesTask extends AsyncTask<String, Void, UsState> {
 
         @Override
         protected void onPreExecute() {
@@ -109,14 +110,14 @@ public class UsStatesActivity extends AppCompatActivity {
                 return null;
             }
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(UsStateConsumerHttp.USSTATE_URL)
+                    .baseUrl(UsSTateWebServiceInterface.USSTATE_URL)
                     .addConverterFactory(SimpleXmlConverterFactory.create())
                     .build();
-            UsStatesActivity.UsStateConsumerHttp consumer = retrofit.create(UsStatesActivity.UsStateConsumerHttp.class);
-            Call<UsState> statesCall = consumer.UsStates(states[0]);
+            UsSTateWebServiceInterface service = retrofit.create(UsSTateWebServiceInterface.class);
+            Call<UsState> statesCall = service.getUsStates(states[0]);
             try {
                 Response<UsState> response = statesCall.execute();
-                if(response.isSuccessful()){
+                if(response.code() == 200){
                     return response.body();
                 } else {
                     showErrorMessageView("Could not get US states. " +
@@ -136,17 +137,17 @@ public class UsStatesActivity extends AppCompatActivity {
             if (usStates != null &&
                     usStates.getStates() != null &&
                     usStates.getStates().size() > 0) {
-                showUsStatesListView();
                 mRecyclerAdapter.setUsStates(usStates);
+                showUsStatesListView();
             } else {
                 showErrorMessageView("Get US states task executed but no states found!");
             }
         }
     }
 
-    public interface UsStateConsumerHttp {
+    private interface UsSTateWebServiceInterface {
         String USSTATE_URL = "http://www.webservicex.net/uszip.asmx/";
         @GET("GetInfoByState")
-        Call<UsState> UsStates(@Query("USState") String state);
+        Call<UsState> getUsStates(@Query("USState") String state);
     }
 }

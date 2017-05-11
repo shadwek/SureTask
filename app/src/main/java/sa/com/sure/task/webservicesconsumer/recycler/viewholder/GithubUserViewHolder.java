@@ -30,6 +30,8 @@ public class GithubUserViewHolder extends RecyclerView.ViewHolder implements Vie
     public void setUserAvatar(Bitmap avatar){ mUserAvatarImageView.setImageBitmap(avatar); }
     public void setUsername(String username){ mUsernameTextView.setText(username); }
 
+    public ImageView getUserAvatarImageView(){ return this.mUserAvatarImageView; }
+
     @Override
     public void onClick(View view) {
         this.mUserItemHandler.onUserItemClick(getAdapterPosition());

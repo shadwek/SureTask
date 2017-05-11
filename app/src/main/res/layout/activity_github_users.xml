@@ -14,6 +14,7 @@
         android:textSize="24sp"
         android:layout_marginTop="8dp"
         android:layout_gravity="start"
+        android:visibility="invisible"
         tools:text="Error message"/>
 
     <android.support.v7.widget.RecyclerView
@@ -21,7 +22,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="42dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:visibility="invisible" />
 
     <ProgressBar
         android:id="@+id/pb_load_indicator"
@@ -35,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="42dp"
         android:layout_gravity="bottom"
+        android:visibility="invisible"
         android:background="?attr/colorButtonNormal">
 
         <android.support.design.widget.TabItem

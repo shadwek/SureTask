@@ -28,16 +28,16 @@
 //
 //    public static void getGitHubUsers(int page, int usersPerPage) throws IOException {
 //        GithubConsumerHttp service = getConsumer(GithubConsumerHttp.GITHUB_API_URL, GithubConsumerHttp.class);
-//        Call<List<GithubUser>> usersCall = service.githubUsers(page, usersPerPage);
+//        Call<List<GithubUser>> usersCall = service.getGithubUsers(page, usersPerPage);
 //        usersCall.execute();
 ////        Callback<List<GithubUser>> callback = new Callback<List<GithubUser>>() {
-////            List<GithubUser> githubUsers = new ArrayList<>();
+////            List<GithubUser> getGithubUsers = new ArrayList<>();
 ////            @Override
 ////            public void onResponse(Call<List<GithubUser>> call, Response<List<GithubUser>> response) {
 ////                if (response.code() == 200) {
-////                    githubUsers = response.body();
+////                    getGithubUsers = response.body();
 ////                    mAdapter
-////                    Log.e(Global.getMethodName(), "Found " + githubUsers.size() + " users.");
+////                    Log.e(Global.getMethodName(), "Found " + getGithubUsers.size() + " users.");
 ////                } else {
 ////                    Log.e(Global.getMethodName(), "Github response code: " + response.code() + " with error message: " + response.message());
 ////                }
@@ -66,23 +66,23 @@
 //    @Override
 //    protected List<GithubUser> doInBackground(Integer... integers) {
 //        GithubConsumerHttp service = getConsumer(GithubConsumerHttp.GITHUB_API_URL, GithubConsumerHttp.class);
-//        Call<List<GithubUser>> usersCall = service.githubUsers(page, usersPerPage);
+//        Call<List<GithubUser>> usersCall = service.getGithubUsers(page, usersPerPage);
 //        usersCall.execute();
 //    }
 //
 //    @Override
-//    protected void onPostExecute(List<GithubUser> githubUsers) {
-//        super.onPostExecute(githubUsers);
+//    protected void onPostExecute(List<GithubUser> getGithubUsers) {
+//        super.onPostExecute(getGithubUsers);
 //    }
 //
 //    interface GithubConsumerHttp {
 //        String GITHUB_API_URL = "https://api.github.com/";
 //        @GET("users")
-//        Call<List<GithubUser>> githubUsers(@Query("page") int page, @Query("per_page") int perPage);
+//        Call<List<GithubUser>> getGithubUsers(@Query("page") int page, @Query("per_page") int perPage);
 //    }
 //}
 ////public interface GetUsStatesTask {
 ////    String GITHUB_API_URL = "https://api.github.com/";
 ////    @GET("users")
-////    Call<List<GithubUser>> githubUsers(@Query("page") int page, @Query("per_page") int perPage);
+////    Call<List<GithubUser>> getGithubUsers(@Query("page") int page, @Query("per_page") int perPage);
 ////}
