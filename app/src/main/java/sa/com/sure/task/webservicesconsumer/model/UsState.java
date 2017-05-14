@@ -24,6 +24,7 @@ public class UsState {
 
         public State(){}
 
+        private long tableId;
         @Element(name = "CITY")
         private String city;
         @Element(name = "STATE")
@@ -74,5 +75,9 @@ public class UsState {
         public void setTimeZone(String timeZone) {
             this.timeZone = timeZone;
         }
+
+        public long getTableId() { return tableId; }
+
+        public void setTableId(long tableId) { this.tableId = tableId; }
     }
 }

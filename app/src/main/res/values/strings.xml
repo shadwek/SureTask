@@ -17,8 +17,16 @@
     <!-- - - - - - - - - - - - - - - - - -->
     <!-- Used within GithubUsersActivity -->
     <!-- - - - - - - - - - - - - - - - - -->
+    <string name="tab_next">NEXT</string>
+    <string name="tab_prev">PREV</string>
     <string name="cd_github_user_image">Github user avatar</string>
     <string name="dummy_username">Username</string>
+    <string name="users_upto_date">Users up to date!</string>
+    <string name="error_could_not_get_users">Could not get github users. \nResponse Code: $_responseCode,\nResponse Message: $_message</string>
+    <string name="error_no_web_browser_found">Could not found web browser app to open github user!</string>
+    <string name="db_users_exist">Users exist in DB.</string>
+    <string name="db_users_inserted">users inserted!</string>
+    <string name="db_error_could_not_insert_users">Error: could not insert users.</string>
 
     <!-- - - - - - - - - - - - - - - - - -->
     <!--   Used within UsStateActivity   -->
@@ -28,5 +36,9 @@
     <string name="zip_code">Zip\nCode</string>
     <string name="time_zone">Time\nZone</string>
     <string name="area_code">Area\nCode</string>
+    <string name="error_could_not_get_states">Could not get US State cities. \nResponse Code: $_responseCode,\nResponse Message: $_message</string>
+    <string name="db_states_exist">States exist in DB.</string>
+    <string name="db_states_inserted"> states inserted!</string>
+    <string name="db_error_could_not_insert_states">Error: could not insert states.</string>
 
 </resources>

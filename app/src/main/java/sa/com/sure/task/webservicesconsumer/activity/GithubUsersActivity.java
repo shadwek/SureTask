@@ -1,6 +1,8 @@
 package sa.com.sure.task.webservicesconsumer.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
@@ -28,16 +30,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 import sa.com.sure.task.webservicesconsumer.R;
+import sa.com.sure.task.webservicesconsumer.database.GithubDatabase;
+import sa.com.sure.task.webservicesconsumer.database.UsStateDatabase;
+import sa.com.sure.task.webservicesconsumer.dialog.Dialog;
+import sa.com.sure.task.webservicesconsumer.model.UsState;
+import sa.com.sure.task.webservicesconsumer.network.Network;
 import sa.com.sure.task.webservicesconsumer.recycler.adapter.GithubUserAdapter;
 import sa.com.sure.task.webservicesconsumer.model.GithubUser;
 
 public class GithubUsersActivity extends AppCompatActivity implements GithubUserAdapter.GithubUserItemHandler {
-
-    // TODO save users in database
-    // TODO don't show recycler until load is completed
-    // TODO elegent the code
-    // TODO do them remove all TODOs
-    // TODO make sure all updates in code done for both activities
 
     // change if you want more users per page
     private final int USERS_PER_PAGE = 50;
@@ -50,6 +51,8 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
     private ProgressBar mLoadIndicatorProgressBar;
     private TabLayout mPageTabLayout;
     private Toast mToast;
+    private Activity mActivity;
+    private GithubDatabase mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,32 +63,34 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         mErrorMessageTextView = (TextView) findViewById(R.id.tv_error_message);
         mLoadIndicatorProgressBar = (ProgressBar) findViewById(R.id.pb_load_indicator);
         mPageTabLayout = (TabLayout) findViewById(R.id.tl_pages_tab);
+        mDbHelper = new GithubDatabase(this);
+        mActivity = this;
 
         mPageTabLayout.getTabAt(0).setText("1");
         mPageTabLayout.getTabAt(1).setText("2");
         mPageTabLayout.getTabAt(2).setText("3");
         mPageTabLayout.getTabAt(3).setText("4");
-        mPageTabLayout.getTabAt(4).setText("NEXT");
+        mPageTabLayout.getTabAt(4).setText(mActivity.getString(R.string.tab_next));
         mPageTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int secondPageNum = Integer.valueOf(mPageTabLayout.getTabAt(1).getText().toString());
                 if(tab.getPosition() == 4){
-                    mPageTabLayout.getTabAt(0).setText("PREV");
+                    mPageTabLayout.getTabAt(0).setText(mActivity.getString(R.string.tab_prev));
                     mPageTabLayout.getTabAt(1).setText(String.valueOf(secondPageNum + 3));
                     mPageTabLayout.getTabAt(2).setText(String.valueOf(secondPageNum + 4));
                     mPageTabLayout.getTabAt(3).setText(String.valueOf(secondPageNum + 5));
-                    mPageTabLayout.getTabAt(4).setText("NEXT");
+                    mPageTabLayout.getTabAt(4).setText(mActivity.getString(R.string.tab_next));
                     mPageTabLayout.getTabAt(1).select();
                 }
                 else if(tab.getPosition() == 0 && !tab.getText().equals("1")){
-                    String firstItem = "PREV";
+                    String firstItem = mActivity.getString(R.string.tab_prev);
                     if(secondPageNum == 5) firstItem = "1";
                     mPageTabLayout.getTabAt(0).setText(firstItem);
                     mPageTabLayout.getTabAt(1).setText(String.valueOf(secondPageNum - 3));
                     mPageTabLayout.getTabAt(2).setText(String.valueOf(secondPageNum - 2));
                     mPageTabLayout.getTabAt(3).setText(String.valueOf(secondPageNum - 1));
-                    mPageTabLayout.getTabAt(4).setText("NEXT");
+                    mPageTabLayout.getTabAt(4).setText(mActivity.getString(R.string.tab_next));
                     mPageTabLayout.getTabAt(3).select();
                 }
                 else loadGithubUsers();
@@ -111,6 +116,12 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
     }
 
     @Override
+    protected void onDestroy() {
+        mDbHelper.close();
+        super.onDestroy();
+    }
+
+    @Override
     public void onUserItemClick(int githubUserPosition) {
         String githubUserUrl = mRecyclerAdapter.getGithubUser(getCurrentTabPage(), githubUserPosition).getHtml_url();
         Uri uri = Uri.parse(githubUserUrl);
@@ -118,10 +129,15 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         if(webBrowserItent.resolveActivity(getPackageManager()) != null){
             startActivity(webBrowserItent);
         }
-        else Toast.makeText(this, "Could not found web browser app to open github user!", Toast.LENGTH_LONG).show();
+        else showToast(getString(R.string.error_no_web_browser_found));
     }
 
     private void loadGithubUsers() {
+        if(!Network.hasInternetConnection(this)) {
+            Dialog.showNoInternetDialog(this);
+            showErrorMessageView(getString(R.string.dialog_no_internet_title));
+            return;
+        }
         new GetGithubUsersTask().execute(LAST_FETCHED_USER_ID + 1, USERS_PER_PAGE);
         mListRecyclerView.getLayoutManager().scrollToPosition(0);
     }
@@ -139,11 +155,19 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         mLoadIndicatorProgressBar.setVisibility(View.INVISIBLE);
         mListRecyclerView.setVisibility(View.VISIBLE);
         mPageTabLayout.setVisibility(View.VISIBLE);
-        if(toastMessage != null && toastMessage.length > 0){
-            if(mToast != null) mToast.cancel();
-            mToast = Toast.makeText(this, toastMessage[0], Toast.LENGTH_LONG);
-            mToast.show();
-        }
+        if(toastMessage != null && toastMessage.length > 0)
+            showToast(toastMessage[0]);
+    }
+
+    private void showToast(final String message){
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(mToast != null) mToast.cancel();
+                mToast = Toast.makeText(mActivity, message, Toast.LENGTH_LONG);
+                mToast.show();
+            }
+        });
     }
 
     @Override
@@ -173,12 +197,13 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            mErrorMessageTextView.setVisibility(View.INVISIBLE);
             int currentTabPage = getCurrentTabPage();
             if(mRecyclerAdapter.hasUsers(currentTabPage) &&
                     mRecyclerAdapter.getGithubUsers(currentTabPage).size() != 0) { // users already fetched
                 mRecyclerAdapter.setGithubUsers(currentTabPage, null);
                 if(IS_MENU_REFRESH_CLICKED){
-                    showGithubUsersListView("Users up to date!");
+                    showGithubUsersListView(mActivity.getString(R.string.users_upto_date));
                     IS_MENU_REFRESH_CLICKED = false;
                 }
                 this.cancel(true);
@@ -191,25 +216,22 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
 
         @Override
         protected List<GithubUser> doInBackground(Integer... integers) {
-            if (integers.length == 0) {
-                showErrorMessageView("Didn't send page and per_page query params!.");
+            if (integers.length == 0)
                 return null;
-            }
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(GithubWebServiceInterface.GITHUB_API_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             GithubWebServiceInterface service = retrofit.create(GithubWebServiceInterface.class);
             Call<List<GithubUser>> usersCall = service.getGithubUsers(integers[0], integers[1]);
-//            return getUsersFromLocalJson();//TODO delete when limit is refreshed
-            try {// TODO uncoment when getUsersFromLocalJson is commented
+            try {
                 Response<List<GithubUser>> response = usersCall.execute();
                 if(response.code() == 200){
                     return response.body();
                 } else {
-                    showErrorMessageView("Could not get github users. " +
-                            "\nResponse Code: " + response.code() + ", " +
-                            "\nResponse Message: " + response.message());
+                    showErrorMessageView(mActivity.getString(R.string.error_could_not_get_users)
+                            .replace("$_responseCode", String.valueOf(response.code()))
+                            .replace("$_message", response.message()));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -224,15 +246,24 @@ public class GithubUsersActivity extends AppCompatActivity implements GithubUser
                 showGithubUsersListView();
                 mRecyclerAdapter.setGithubUsers(getCurrentTabPage(), githubUsers);
                 LAST_FETCHED_USER_ID = githubUsers.get(githubUsers.size() - 1).getId();
+                new DbInertGithubUsersTask().execute(githubUsers);
             }
         }
     }
 
-    private List<GithubUser> getUsersFromLocalJson() { // TODO ToDelete
-        Gson gson = new Gson();
-        String json = getResources().getString(R.string.users_json);
-        List<GithubUser> users = gson.fromJson(json, new TypeToken<List<GithubUser>>(){}.getType());
-        return users;
+    private class DbInertGithubUsersTask extends AsyncTask<List<GithubUser>, Void, Void>{
+
+        @Override
+        protected Void doInBackground(List<GithubUser>... githubUsers) {
+            if (mDbHelper.has(githubUsers[0]))
+                showToast(mActivity.getString(R.string.db_users_exist));
+            int numInsertedUsers = mDbHelper.insert(githubUsers[0]);
+            if( numInsertedUsers > 0)
+                showToast(numInsertedUsers + " " + mActivity.getString(R.string.db_users_inserted));
+            else showToast(mActivity.getString(R.string.db_error_could_not_insert_users));
+            mDbHelper.close();
+            return null;
+        }
     }
 
     private interface GithubWebServiceInterface {

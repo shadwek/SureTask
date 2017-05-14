@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="table_create">CREATE TABLE $_tableName($_columns)</string>
+    <string name="table_create_columns">$_columnName $_columnType $_null $_primary</string>
+    <string name="table_drop_if_exist">"DROP TABLE IF EXISTS $_tableName</string>
+    <string name="column_create_not_null">NOT NULL</string>
+    <string name="column_create_primary">PRIMARY KEY AUTOINCREMENT</string>
+    <string name="query_select">SELECT $_columns FROM $_tableName $_where $_group $_having $_order $_limit</string>
+    <string name="query_select_where">WHERE $_condition</string>
+    <string name="query_select_group">GROUP BY $_columns</string>
+    <string name="query_select_having">HAVING $_condition</string>
+    <string name="query_select_order">ORDER BY $_columns $_orderType</string>
+    <string name="query_select_limit">LIMIT $_rows OFFSET $_offset</string>
+</resources>

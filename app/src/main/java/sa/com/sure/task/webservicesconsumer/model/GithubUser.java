@@ -11,6 +11,7 @@ public class GithubUser {
     // query used to get small avatar images (80 * 80)
     private final static String AVATAR_SIZE_QUERY = "&s=80";
 
+    private long tableId;
     private int id;
     private String login;
     private String avatar_url;
@@ -59,4 +60,8 @@ public class GithubUser {
     public void setStarted(boolean started){ this.isStarted = started; }
 
     public boolean getStarted(){ return this.isStarted; }
+
+    public long getTableId() { return tableId; }
+
+    public void setTableId(long tableId) { this.tableId = tableId; }
 }
